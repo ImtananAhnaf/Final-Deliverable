@@ -351,14 +351,6 @@ CREATE TABLE `transactions` (
   `date_created` date NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE `user_interests` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `interest` varchar(255) NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 --
 -- Dumping data for table `transactions`
 --
@@ -381,11 +373,6 @@ ALTER TABLE `admins`
 --
 ALTER TABLE `announcements`
   ADD PRIMARY KEY (`ID`);
-
-
-
-ALTER TABLE `user_interests`
-  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `batches`

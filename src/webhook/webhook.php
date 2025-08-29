@@ -1,4 +1,4 @@
-    <?php
+<?php
 include '../config/db.php';
 date_default_timezone_set('Asia/Karachi');
 
@@ -63,7 +63,40 @@ if ($intent == "List Courses Intent") {
         // Generic response if no course name was provided
         $responseText = "Yes, we offer certificates for our courses. You’ll receive a verifiable Certificate of Completion after finishing any of our courses.";
     }
-}   
+}  
+if ($intent === "clarify_course_info") {
+    $responseText = "Sure! What information would you like?\n1️⃣ Course Fee\n2️⃣ Course Content\n3️⃣ Instructor Info";
+
+    // Optional: Send choices as chips
+    $response = [
+        "fulfillmentMessages" => [
+            ["text" => ["text" => [$responseText]]],
+            [
+                "payload" => [
+                    "richContent" => [
+                        [
+                            "type" => "chips",
+                            "options" => [
+                                ["text" => "Course Fee"],
+                                ["text" => "Course Content"],
+                                ["text" => "Course Duration"],
+                                ["text" => "Instructor Info"]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ];
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
+}
+if ($intent === "clarify_course_info - fee") {
+    // Reuse the same logic as pricing_info
+    $intent = "pricing_info";
+}
+
 if($intent === "pricing_info"){
     $parameters = $requestJson['queryResult']['parameters'];
     $courseName = isset($parameters['course']) ? strtolower($parameters['course']) : '';
@@ -92,6 +125,10 @@ if($intent === "pricing_info"){
     header('Content-Type: application/json');
     echo json_encode($response);
     exit;
+}
+if ($intent === "clarify_course_info - content") {
+    
+    $intent = "course_content";
 }
 if ($intent === "course_content") {
     $parameters = $requestJson['queryResult']['parameters'];
@@ -158,6 +195,9 @@ if ($intent === "recommend_courses") {
     }
 }
 
+if ($intent === "clarify_course_info - instructor") {
+    $intent = "instructor_info"; // redirect logic
+}
 
 if ($intent == "instructor_info") {
     $parameters = $requestJson['queryResult']['parameters'];
@@ -229,6 +269,9 @@ if ($intent == "instructor_info") {
     echo json_encode($response);
     exit;
 }
+
+
+
 
 
 
@@ -402,6 +445,26 @@ if($intent === "contact_support"){
 }
 
 
+if ($intent === "clarify_batch_schedule") {
+    $responseText = "📘 Which course’s schedule are you asking about? Please mention the course name.";
+
+    // Set output context to pass into next intent
+    $response = [
+        "fulfillmentMessages" => [
+            ["text" => ["text" => [$responseText]]]
+        ],
+        "outputContexts" => [
+            [
+                "name" => $requestJson['session'] . "/contexts/clarify_batch_schedule_followup",
+                "lifespanCount" => 2
+            ]
+        ]
+    ];
+
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
+}
 
 
 

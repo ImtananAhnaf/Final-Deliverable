@@ -70,29 +70,47 @@
 						<label>Fee</label>
 						<input type="number" name="fee" id="fee" class="form-control" required>
 					</div>
-					<div class="form-group">
-						<label>Duration</label>
-						<input type="text" name="duration" id="duration" class="form-control" required>
+					<div class="form-row">
+						<div class="col-sm-4">
+							<div class="form-group">
+								<label>Duration</label>
+								<input type="text" name="duration" id="duration" class="form-control" required>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<label>Level</label>
+								<input type="text" name="level" id="level" class="form-control" required>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<label>Mode</label>
+								<select name="mode" id="mode" class="form-control">
+									<option value="Online">Online</option>
+									<option value="Offline">Offline</option>
+								</select>
+							</div>
+						</div>
 					</div>
-					<div class="form-group">
-						<label>Level</label>
-						<input type="text" name="level" id="level" class="form-control" required>
-					</div>
-					<div class="form-group">
-						<label>Mode</label>
-						<select name="mode" id="mode" class="form-control">
-							<option value="Online">Online</option>
-							<option value="Offline">Offline</option>
-						</select>
-					</div>
+
 					<div class="form-group">
 						<label>Certification Info</label>
 						<textarea name="certification" id="certification" class="form-control" placeholder="e.g., You will receive a certificate of completion."></textarea>
 					</div>
-
-					<div class="form-group">
-						<label>Image (optional)</label>
-						<input type="file" name="image" id="image" class="form-control">
+					<div class="form-row">
+						<div class="col-sm-6">
+							<div class="form-group">
+								<label>Image</label>
+								<input type="file" name="image" id="image" class="form-control">
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<div class="form-group">
+								<label>Brochure (PDF or Document)</label>
+								<input type="file" name="brochure" id="brochure" class="form-control">
+							</div>
+						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
@@ -117,20 +135,32 @@ if (isset($_POST['add_course'])) {
 	$certification = $_POST['certification'];
 
 	$time = time();
+
+	// Image
 	$image = $_FILES['image']['name'];
 	$tmp_img = $_FILES['image']['tmp_name'];
 	$imgName = '';
-
 	if ($image != "") {
 		$parts = explode(".", $image);
-		$imgName = $time . "." . end($parts);
-		move_uploaded_file($tmp_img, "assets/images/$imgName");
+		$imgName = $time . "_img." . end($parts);
+		move_uploaded_file($tmp_img, "../assets/images/$imgName");
 	}
 
-	mysqli_query($con, "INSERT INTO courses (title, description, image, fee, duration, level, mode, certification) 
-		VALUES ('$title', '$desc', '$imgName', '$fee', '$duration', '$level', '$mode', '$certification')");
+	// Brochure
+	$brochure = $_FILES['brochure']['name'];
+	$tmp_brochure = $_FILES['brochure']['tmp_name'];
+	$brochureName = '';
+	if ($brochure != "") {
+		$parts = explode(".", $brochure);
+		$brochureName = $time . "_brochure." . end($parts);
+		move_uploaded_file($tmp_brochure, "../assets/brochures/$brochureName");
+	}
+
+	mysqli_query($con, "INSERT INTO courses (title, description, image, fee, duration, level, mode, certification, brochure) 
+		VALUES ('$title', '$desc', '$imgName', '$fee', '$duration', '$level', '$mode', '$certification', '$brochureName')");
 	echo "<script>window.location='index.php?page=manage_courses';</script>";
 }
+
 
 if (isset($_POST['update_course'])) {
 	$id = $_POST['course_id'];
@@ -142,20 +172,28 @@ if (isset($_POST['update_course'])) {
 	$mode = $_POST['mode'];
 	$certification = $_POST['certification'];
 
+	$img_sql = "";
 	if ($_FILES['image']['name']) {
 		$image = $_FILES['image']['name'];
 		$tmp_img = $_FILES['image']['tmp_name'];
-		$time = time();
-		$imgName = $time . "." . end(explode(".", $image));
-		move_uploaded_file($tmp_img, "assets/images/$imgName");
+		$imgName = time() . "_img." . end(explode(".", $image));
+		move_uploaded_file($tmp_img, "../assets/images/$imgName");
 		$img_sql = ", image='$imgName'";
-	} else {
-		$img_sql = "";
 	}
 
-	mysqli_query($con, "UPDATE courses SET title='$title', description='$desc', fee='$fee', duration='$duration', level='$level', mode='$mode', certification='$certification' $img_sql WHERE ID='$id'");
+	$brochure_sql = "";
+	if ($_FILES['brochure']['name']) {
+		$brochure = $_FILES['brochure']['name'];
+		$tmp_brochure = $_FILES['brochure']['tmp_name'];
+		$brochureName = time() . "_brochure." . end(explode(".", $brochure));
+		move_uploaded_file($tmp_brochure, "../assets/brochures/$brochureName");
+		$brochure_sql = ", brochure='$brochureName'";
+	}
+
+	mysqli_query($con, "UPDATE courses SET title='$title', description='$desc', fee='$fee', duration='$duration', level='$level', mode='$mode', certification='$certification' $img_sql $brochure_sql WHERE ID='$id'");
 	echo "<script>window.location='index.php?page=manage_courses';</script>";
 }
+
 
 
 // Handle Delete
